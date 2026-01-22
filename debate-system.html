@@ -519,8 +519,7 @@
             </div>
 
             <div class="controls">
-                <button class="btn-primary" id="nextTurnBtn" style="display: none;">Next Turn</button>
-                <button class="btn-secondary" id="endDebateBtn" style="display: none;">End Debate</button>
+                <button class="btn-secondary" id="endDebateBtn" style="display: none;">End Debate Now</button>
                 <button class="btn-secondary" id="newDebateBtn">New Debate</button>
             </div>
 
@@ -693,6 +692,12 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
                     // Move to next agent
                     this.currentAgentIndex = (this.currentAgentIndex + 1) % this.agents.length;
                     
+                    // Automatically continue to next turn after a brief pause
+                    if (this.isRunning) {
+                        await this.sleep(1500);
+                        return await this.takeTurn();
+                    }
+                    
                     return true;
                 } catch (error) {
                     console.error('Debate error:', error);
@@ -706,7 +711,6 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
             async endDebate() {
                 this.isRunning = false;
                 updateStatus('Debate concluded!');
-                document.getElementById('nextTurnBtn').style.display = 'none';
                 document.getElementById('endDebateBtn').style.display = 'none';
                 await this.generateSummary();
             }
@@ -898,48 +902,26 @@ Keep it concise but thorough (3-4 paragraphs).`;
             document.getElementById('messagesContainer').innerHTML = '';
             document.getElementById('summarySection').style.display = 'none';
 
-            // Start first turn
+            // Start automatic debate
             try {
                 debateSystem.isRunning = true;
-                const canContinue = await debateSystem.takeTurn();
-                
-                if (canContinue) {
-                    updateStatus(`Turn ${debateSystem.currentTurn} complete. Click for next turn.`);
-                    document.getElementById('nextTurnBtn').style.display = 'inline-block';
-                    document.getElementById('endDebateBtn').style.display = 'inline-block';
-                } else {
-                    updateStatus('Debate initialization failed. Check the error message above.');
-                }
+                document.getElementById('endDebateBtn').style.display = 'inline-block';
+                await debateSystem.takeTurn();
             } catch (error) {
                 console.error('Start debate error:', error);
                 showError(`Failed to start debate: ${error.message}`);
             }
         });
 
-        document.getElementById('nextTurnBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('nextTurnBtn');
-            btn.disabled = true;
-
-            const canContinue = await debateSystem.takeTurn();
-            
-            if (canContinue) {
-                updateStatus(`Turn ${debateSystem.currentTurn} complete. Click for next turn.`);
-                btn.disabled = false;
-            } else {
-                btn.style.display = 'none';
-                document.getElementById('endDebateBtn').style.display = 'none';
-            }
-        });
-
         document.getElementById('endDebateBtn').addEventListener('click', async () => {
-            debateSystem.endDebate();
+            debateSystem.isRunning = false;
+            await debateSystem.endDebate();
         });
 
         document.getElementById('newDebateBtn').addEventListener('click', () => {
             debateSystem.isRunning = false;
             document.getElementById('setupPanel').style.display = 'block';
             document.getElementById('debateArea').classList.remove('active');
-            document.getElementById('nextTurnBtn').style.display = 'none';
             document.getElementById('endDebateBtn').style.display = 'none';
             if (currentBubble) {
                 currentBubble.remove();
