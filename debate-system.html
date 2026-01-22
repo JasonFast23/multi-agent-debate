@@ -552,14 +552,14 @@ This is turn ${turnNumber} of the conversation.
 
 DEBATE RULES:
 1. Stay in character according to your perspective
-2. Keep your response BRIEF (2-4 sentences maximum)
+2. Keep your response VERY BRIEF (1-2 sentences maximum)
 3. Make ONE clear point per turn
 4. Respond directly to what was just said
 5. Be conversational and natural
 6. If you're starting to agree with others, acknowledge it
 7. Signal if you think consensus is being reached
 
-${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous speaker briefly.'}`;
+${turnNumber <= 3 ? 'State your position briefly in 1-2 sentences.' : 'Respond to the previous speaker in 1-2 sentences.'}`;
             }
         }
 
@@ -615,12 +615,12 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
                     
                     messages.push({
                         role: 'user',
-                        content: `Recent conversation:\n\n${recentDebate}\n\nProvide your brief response (2-4 sentences).`
+                        content: `Recent conversation:\n\n${recentDebate}\n\nProvide your brief response (1-2 sentences only).`
                     });
                 } else {
                     messages.push({
                         role: 'user',
-                        content: `State your initial position on: "${this.topic}" (2-4 sentences)`
+                        content: `State your initial position on: "${this.topic}" (1-2 sentences only)`
                     });
                 }
 
@@ -634,7 +634,7 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
                         model: this.model,
                         messages: messages,
                         temperature: 0.8,
-                        max_tokens: 150
+                        max_tokens: 100
                     })
                 });
 
@@ -677,6 +677,9 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
                     hideLoading();
                     displayMessage(agent.name, message, this.currentTurn, this.currentAgentIndex + 1);
 
+                    // Wait 5 seconds so user can read the message before moving to next turn
+                    await this.sleep(5000);
+
                     // Check for consensus keywords (only after 12 turns and must have strong consensus language)
                     const strongConsensusKeywords = ['we agree', 'reached consensus', 'we can agree', 'found common ground'];
                     const hasStrongConsensus = strongConsensusKeywords.some(keyword => 
@@ -692,9 +695,8 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
                     // Move to next agent
                     this.currentAgentIndex = (this.currentAgentIndex + 1) % this.agents.length;
                     
-                    // Automatically continue to next turn after a pause for reading (5 seconds)
+                    // Automatically continue to next turn
                     if (this.isRunning) {
-                        await this.sleep(5000);
                         return await this.takeTurn();
                     }
                     
