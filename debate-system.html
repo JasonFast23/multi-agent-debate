@@ -692,9 +692,9 @@ ${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous sp
                     // Move to next agent
                     this.currentAgentIndex = (this.currentAgentIndex + 1) % this.agents.length;
                     
-                    // Automatically continue to next turn after a brief pause
+                    // Automatically continue to next turn after a pause for reading (5 seconds)
                     if (this.isRunning) {
-                        await this.sleep(1500);
+                        await this.sleep(5000);
                         return await this.takeTurn();
                     }
                     
