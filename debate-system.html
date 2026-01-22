@@ -187,75 +187,179 @@
             color: #2196F3;
         }
 
-        .messages-container {
-            max-height: 600px;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
+        .stage-container {
+            position: relative;
+            min-height: 600px;
+            background: linear-gradient(to bottom, #e8f4f8 0%, #f0f0f0 100%);
+            border-radius: 20px;
             margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .message {
-            margin-bottom: 25px;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message-header {
+        .agent-character {
+            position: absolute;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .agent-character.speaking {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .agent-character.speaking .agent-avatar {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .agent-1-char {
+            top: 50px;
+            left: 50px;
+        }
+
+        .agent-2-char {
+            top: 50px;
+            right: 50px;
+        }
+
+        .agent-3-char {
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .agent-avatar {
-            width: 50px;
-            height: 50px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2em;
+            font-size: 3em;
             color: white;
-            margin-right: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border: 5px solid white;
+            margin-bottom: 10px;
         }
 
-        .agent-1 .agent-avatar { background: #667eea; }
-        .agent-2 .agent-avatar { background: #f093fb; }
-        .agent-3 .agent-avatar { background: #4facfe; }
+        .agent-1-char .agent-avatar { background: #667eea; }
+        .agent-2-char .agent-avatar { background: #f093fb; }
+        .agent-3-char .agent-avatar { background: #4facfe; }
 
-        .message-info {
-            flex: 1;
-        }
-
-        .agent-name {
+        .agent-label {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
             font-weight: 600;
-            font-size: 1.1em;
-            color: #333;
-        }
-
-        .round-info {
             font-size: 0.9em;
-            color: #6c757d;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            white-space: nowrap;
         }
 
-        .message-content {
+        .speech-bubble {
+            position: absolute;
             background: white;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            max-width: 400px;
+            max-height: 300px;
+            overflow-y: auto;
             line-height: 1.6;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 0.95em;
+            color: #333;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: bubbleIn 0.5s ease-out forwards;
+        }
+
+        .speech-bubble::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .speech-bubble::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .speech-bubble::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        @keyframes bubbleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .speech-bubble.fade-out {
+            animation: bubbleOut 0.3s ease-out forwards;
+        }
+
+        @keyframes bubbleOut {
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        .bubble-1 {
+            top: 180px;
+            left: 180px;
+            border-bottom-left-radius: 5px;
+        }
+
+        .bubble-2 {
+            top: 180px;
+            right: 180px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bubble-3 {
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            border-bottom-left-radius: 5px;
+            animation: bubbleIn3 0.5s ease-out forwards;
+        }
+
+        @keyframes bubbleIn3 {
+            to {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        .bubble-3.fade-out {
+            animation: bubbleOut3 0.3s ease-out forwards;
+        }
+
+        @keyframes bubbleOut3 {
+            to {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.8);
+            }
+        }
+
+        .bubble-header {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .messages-container {
+            display: none;
         }
 
         .loading {
@@ -395,12 +499,27 @@
 
             <div id="errorContainer"></div>
 
+            <div class="stage-container" id="stageContainer">
+                <div class="agent-character agent-1-char" id="agent1Char">
+                    <div class="agent-avatar">🤓</div>
+                    <div class="agent-label">The Pragmatist</div>
+                </div>
+                <div class="agent-character agent-2-char" id="agent2Char">
+                    <div class="agent-avatar">🎓</div>
+                    <div class="agent-label">The Interdisciplinarian</div>
+                </div>
+                <div class="agent-character agent-3-char" id="agent3Char">
+                    <div class="agent-avatar">🎒</div>
+                    <div class="agent-label">The Student Advocate</div>
+                </div>
+            </div>
+
             <div class="messages-container scrollbar-custom" id="messagesContainer">
-                <!-- Messages will be added here dynamically -->
+                <!-- Hidden transcript -->
             </div>
 
             <div class="controls">
-                <button class="btn-primary" id="nextRoundBtn" style="display: none;">Next Round</button>
+                <button class="btn-primary" id="nextTurnBtn" style="display: none;">Next Turn</button>
                 <button class="btn-secondary" id="newDebateBtn">New Debate</button>
             </div>
 
@@ -424,44 +543,48 @@
                 this.conversationHistory.push({ role, content });
             }
 
-            getSystemPrompt(topic, round, totalRounds) {
+            getSystemPrompt(topic, turnNumber) {
                 return `${this.persona}
 
-You are participating in a structured debate about: "${topic}"
+You are participating in an ongoing debate about: "${topic}"
 
-This is round ${round} of ${totalRounds}.
+This is turn ${turnNumber} of the conversation.
 
 DEBATE RULES:
 1. Stay in character according to your perspective
-2. Make clear, well-reasoned arguments
-3. Respond to previous speakers' points
-4. Be respectful but assertive
-5. Keep responses focused and concise (2-3 paragraphs)
-6. Use evidence or examples when possible
+2. Keep your response BRIEF (2-4 sentences maximum)
+3. Make ONE clear point per turn
+4. Respond directly to what was just said
+5. Be conversational and natural
+6. If you're starting to agree with others, acknowledge it
+7. Signal if you think consensus is being reached
 
-${round === 1 ? 'Present your opening position on this topic.' : 'Respond to the previous arguments and develop your position further.'}`;
+${turnNumber <= 3 ? 'State your position briefly.' : 'Respond to the previous speaker briefly.'}`;
             }
         }
 
         class DebateSystem {
             constructor() {
                 this.agents = [];
-                this.currentRound = 0;
-                this.totalRounds = 3;
+                this.currentTurn = 0;
+                this.maxTurns = 15;
                 this.topic = '';
                 this.apiKey = '';
                 this.model = 'gpt-4o-mini';
                 this.debateHistory = [];
                 this.isRunning = false;
+                this.currentAgentIndex = 0;
             }
 
             initialize(topic, numRounds, apiKey, model, agentPersonas) {
                 this.topic = topic;
-                this.totalRounds = numRounds;
+                this.maxTurns = numRounds * 3; // Convert rounds to turns (3 agents)
                 this.apiKey = apiKey;
                 this.model = model;
-                this.currentRound = 1;
+                this.currentTurn = 0;
+                this.currentAgentIndex = 0;
                 this.debateHistory = [];
+                this.isRunning = false;
 
                 // Create agents with personas
                 const agentConfigs = [
@@ -475,30 +598,29 @@ ${round === 1 ? 'Present your opening position on this topic.' : 'Respond to the
                 );
             }
 
-            async callOpenAI(agent, round) {
+            async callOpenAI(agent, turnNumber) {
                 const messages = [
                     {
                         role: 'system',
-                        content: agent.getSystemPrompt(this.topic, round, this.totalRounds)
-                    },
-                    ...agent.conversationHistory
+                        content: agent.getSystemPrompt(this.topic, turnNumber)
+                    }
                 ];
 
-                // Add context from other agents if available
+                // Add context from recent debate
                 if (this.debateHistory.length > 0) {
                     const recentDebate = this.debateHistory
-                        .slice(-6) // Last 6 messages
+                        .slice(-6) // Last 6 turns
                         .map(entry => `${entry.agent}: ${entry.message}`)
                         .join('\n\n');
                     
                     messages.push({
                         role: 'user',
-                        content: `Here's the recent debate context:\n\n${recentDebate}\n\nNow provide your argument for round ${round}.`
+                        content: `Recent conversation:\n\n${recentDebate}\n\nProvide your brief response (2-4 sentences).`
                     });
                 } else {
                     messages.push({
                         role: 'user',
-                        content: `Provide your opening statement on the topic: "${this.topic}"`
+                        content: `State your initial position on: "${this.topic}" (2-4 sentences)`
                     });
                 }
 
@@ -512,7 +634,7 @@ ${round === 1 ? 'Present your opening position on this topic.' : 'Respond to the
                         model: this.model,
                         messages: messages,
                         temperature: 0.8,
-                        max_tokens: 500
+                        max_tokens: 150
                     })
                 });
 
@@ -530,34 +652,59 @@ ${round === 1 ? 'Present your opening position on this topic.' : 'Respond to the
                 return message;
             }
 
-            async runRound(round) {
-                for (let i = 0; i < this.agents.length; i++) {
-                    const agent = this.agents[i];
-                    
-                    try {
-                        updateStatus(`Round ${round}/${this.totalRounds} - ${agent.name} is thinking...`);
-                        showLoading();
-
-                        const message = await this.callOpenAI(agent, round);
-                        
-                        this.debateHistory.push({
-                            agent: agent.name,
-                            message: message,
-                            round: round,
-                            agentIndex: i
-                        });
-
-                        hideLoading();
-                        displayMessage(agent.name, message, round, i + 1);
-
-                        // Small delay between agents
-                        await this.sleep(1000);
-                    } catch (error) {
-                        hideLoading();
-                        showError(`Error with ${agent.name}: ${error.message}`);
-                        throw error;
-                    }
+            async takeTurn() {
+                if (this.currentTurn >= this.maxTurns) {
+                    this.endDebate();
+                    return false;
                 }
+
+                const agent = this.agents[this.currentAgentIndex];
+                this.currentTurn++;
+                
+                try {
+                    updateStatus(`Turn ${this.currentTurn} - ${agent.name} is thinking...`);
+                    showLoading();
+
+                    const message = await this.callOpenAI(agent, this.currentTurn);
+                    
+                    this.debateHistory.push({
+                        agent: agent.name,
+                        message: message,
+                        turn: this.currentTurn,
+                        agentIndex: this.currentAgentIndex
+                    });
+
+                    hideLoading();
+                    displayMessage(agent.name, message, this.currentTurn, this.currentAgentIndex + 1);
+
+                    // Check for consensus keywords
+                    const consensusKeywords = ['agree', 'consensus', 'common ground', 'makes sense', 'good point', 'compromise'];
+                    const hasConsensus = consensusKeywords.some(keyword => 
+                        message.toLowerCase().includes(keyword)
+                    );
+
+                    if (hasConsensus && this.currentTurn >= 9) {
+                        await this.sleep(2000);
+                        this.endDebate();
+                        return false;
+                    }
+
+                    // Move to next agent
+                    this.currentAgentIndex = (this.currentAgentIndex + 1) % this.agents.length;
+                    
+                    return true;
+                } catch (error) {
+                    hideLoading();
+                    showError(`Error with ${agent.name}: ${error.message}`);
+                    return false;
+                }
+            }
+
+            async endDebate() {
+                this.isRunning = false;
+                updateStatus('Debate concluded!');
+                document.getElementById('nextTurnBtn').style.display = 'none';
+                await this.generateSummary();
             }
 
             async generateSummary() {
@@ -566,17 +713,17 @@ ${round === 1 ? 'Present your opening position on this topic.' : 'Respond to the
 
                 const summaryPrompt = `You are analyzing a debate between three AI agents about: "${this.topic}"
 
-Here's the complete debate:
+Here's the complete conversation (${this.debateHistory.length} turns):
 
 ${this.debateHistory.map((entry, i) => 
-    `[Round ${entry.round}] ${entry.agent}:\n${entry.message}\n`
+    `[Turn ${entry.turn}] ${entry.agent}:\n${entry.message}\n`
 ).join('\n')}
 
 Provide a comprehensive summary that includes:
 1. Main arguments from each perspective
 2. Key points of agreement and disagreement
-3. Most compelling arguments made
-4. Overall assessment of the debate quality
+3. How the conversation evolved
+4. Whether consensus was reached
 
 Keep it concise but thorough (3-4 paragraphs).`;
 
@@ -648,25 +795,51 @@ Keep it concise but thorough (3-4 paragraphs).`;
             }
         }
 
-        function displayMessage(agentName, message, round, agentNum) {
-            const container = document.getElementById('messagesContainer');
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message agent-${agentNum}`;
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <div class="agent-avatar">${agentNum}</div>
-                    <div class="message-info">
-                        <div class="agent-name">${agentName}</div>
-                        <div class="round-info">Round ${round}</div>
-                    </div>
-                </div>
-                <div class="message-content">${message.replace(/\n/g, '<br>')}</div>
+        let currentBubble = null;
+        let bubbleTimeout = null;
+
+        function displayMessage(agentName, message, turn, agentNum) {
+            // Clear any pending bubble removal
+            if (bubbleTimeout) {
+                clearTimeout(bubbleTimeout);
+            }
+
+            // Remove previous bubble with fade out
+            if (currentBubble) {
+                currentBubble.classList.add('fade-out');
+                setTimeout(() => {
+                    if (currentBubble && currentBubble.parentNode) {
+                        currentBubble.remove();
+                    }
+                }, 300);
+            }
+
+            // Remove speaking class from all agents
+            document.querySelectorAll('.agent-character').forEach(char => {
+                char.classList.remove('speaking');
+            });
+
+            // Add speaking class to current agent
+            const agentChar = document.getElementById(`agent${agentNum}Char`);
+            agentChar.classList.add('speaking');
+
+            // Create speech bubble
+            const stage = document.getElementById('stageContainer');
+            const bubble = document.createElement('div');
+            bubble.className = `speech-bubble bubble-${agentNum}`;
+            bubble.innerHTML = `
+                <div class="bubble-header">${agentName} - Turn ${turn}</div>
+                <div>${message.replace(/\n/g, '<br>')}</div>
             `;
             
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
+            stage.appendChild(bubble);
+            currentBubble = bubble;
+
+            // Also add to hidden transcript
+            const transcript = document.getElementById('messagesContainer');
+            const transcriptEntry = document.createElement('div');
+            transcriptEntry.innerHTML = `<strong>${agentName} (Turn ${turn}):</strong> ${message}<br><br>`;
+            transcript.appendChild(transcriptEntry);
         }
 
         function showError(message) {
@@ -721,49 +894,41 @@ Keep it concise but thorough (3-4 paragraphs).`;
             document.getElementById('messagesContainer').innerHTML = '';
             document.getElementById('summarySection').style.display = 'none';
 
-            // Run first round
-            try {
-                await debateSystem.runRound(1);
-                debateSystem.currentRound++;
-
-                if (debateSystem.currentRound <= debateSystem.totalRounds) {
-                    updateStatus(`Round 1 complete. Ready for round ${debateSystem.currentRound}.`);
-                    document.getElementById('nextRoundBtn').style.display = 'inline-block';
-                } else {
-                    updateStatus('Debate complete!');
-                    await debateSystem.generateSummary();
-                }
-            } catch (error) {
-                console.error('Debate error:', error);
+            // Start first turn
+            debateSystem.isRunning = true;
+            const canContinue = await debateSystem.takeTurn();
+            
+            if (canContinue) {
+                updateStatus(`Turn ${debateSystem.currentTurn} complete. Click for next turn.`);
+                document.getElementById('nextTurnBtn').style.display = 'inline-block';
             }
         });
 
-        document.getElementById('nextRoundBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('nextRoundBtn');
+        document.getElementById('nextTurnBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('nextTurnBtn');
             btn.disabled = true;
 
-            try {
-                await debateSystem.runRound(debateSystem.currentRound);
-                debateSystem.currentRound++;
-
-                if (debateSystem.currentRound <= debateSystem.totalRounds) {
-                    updateStatus(`Round ${debateSystem.currentRound - 1} complete. Ready for round ${debateSystem.currentRound}.`);
-                    btn.disabled = false;
-                } else {
-                    updateStatus('Debate complete!');
+            const canContinue = await debateSystem.takeTurn();
+            
+            if (canContinue) {
+                updateStatus(`Turn ${debateSystem.currentTurn} complete. Click for next turn.`);
+                btn.disabled = false;
+            } else {
+                btn.style.display = 'none';
+            }
                     btn.style.display = 'none';
                     await debateSystem.generateSummary();
-                }
-            } catch (error) {
-                console.error('Round error:', error);
-                btn.disabled = false;
-            }
         });
 
         document.getElementById('newDebateBtn').addEventListener('click', () => {
+            debateSystem.isRunning = false;
             document.getElementById('setupPanel').style.display = 'block';
             document.getElementById('debateArea').classList.remove('active');
-            document.getElementById('nextRoundBtn').style.display = 'none';
+            document.getElementById('nextTurnBtn').style.display = 'none';
+            if (currentBubble) {
+                currentBubble.remove();
+                currentBubble = null;
+            }
         });
 
         // Load API key from session storage if available
