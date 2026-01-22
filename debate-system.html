@@ -677,8 +677,14 @@ ${turnNumber <= 3 ? 'State your position briefly in 1-2 sentences.' : 'Respond t
                     hideLoading();
                     displayMessage(agent.name, message, this.currentTurn, this.currentAgentIndex + 1);
 
-                    // Wait 5 seconds so user can read the message before moving to next turn
+                    // Wait 5 seconds so user can read the message
                     await this.sleep(5000);
+
+                    // Remove the bubble before moving to next agent
+                    removePreviousBubble();
+                    
+                    // Small delay for fade-out animation
+                    await this.sleep(500);
 
                     // Check for consensus keywords (only after 12 turns and must have strong consensus language)
                     const strongConsensusKeywords = ['we agree', 'reached consensus', 'we can agree', 'found common ground'];
@@ -687,7 +693,6 @@ ${turnNumber <= 3 ? 'State your position briefly in 1-2 sentences.' : 'Respond t
                     );
 
                     if (hasStrongConsensus && this.currentTurn >= 12) {
-                        await this.sleep(2000);
                         this.endDebate();
                         return false;
                     }
@@ -809,21 +814,8 @@ Keep it concise but thorough (3-4 paragraphs).`;
         let bubbleTimeout = null;
 
         function displayMessage(agentName, message, turn, agentNum) {
-            // Clear any pending bubble removal
-            if (bubbleTimeout) {
-                clearTimeout(bubbleTimeout);
-            }
-
-            // Remove previous bubble with fade out
-            if (currentBubble) {
-                currentBubble.classList.add('fade-out');
-                setTimeout(() => {
-                    if (currentBubble && currentBubble.parentNode) {
-                        currentBubble.remove();
-                    }
-                }, 300);
-            }
-
+            // Don't remove previous bubble here - let the caller control timing
+            
             // Remove speaking class from all agents
             document.querySelectorAll('.agent-character').forEach(char => {
                 char.classList.remove('speaking');
@@ -850,6 +842,17 @@ Keep it concise but thorough (3-4 paragraphs).`;
             const transcriptEntry = document.createElement('div');
             transcriptEntry.innerHTML = `<strong>${agentName} (Turn ${turn}):</strong> ${message}<br><br>`;
             transcript.appendChild(transcriptEntry);
+        }
+
+        function removePreviousBubble() {
+            if (currentBubble) {
+                currentBubble.classList.add('fade-out');
+                setTimeout(() => {
+                    if (currentBubble && currentBubble.parentNode) {
+                        currentBubble.remove();
+                    }
+                }, 300);
+            }
         }
 
         function showError(message) {
